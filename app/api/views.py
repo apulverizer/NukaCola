@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify
 from flask import current_app
 import RPi.GPIO as GPIO
-import json
 
 api = Blueprint('api', __name__)
 
