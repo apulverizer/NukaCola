@@ -19,7 +19,7 @@ CSRF_SESSION_KEY = "secret"
 SECRET_KEY = "secret"
 
 OUTPUTS = {
-    1: 2,
-    2: 3,
-    3: 4
+    1: 11,
+    2: 13,
+    3: 15
 }
