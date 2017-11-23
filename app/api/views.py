@@ -72,6 +72,21 @@ def get_output(id):
     })
 
 
+@api.route('/', methods=['GET'])
+def get_outputs():
+    """
+    Returns info about outputs
+    :return: json string of the configured outputs
+    """
+    outputs = []
+    for id in current_app.config['OUTPUTS']:
+        outputs.append({
+            "id": id,
+            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        })
+    return jsonify(outputs)
+
+
 @api.route('/<int:id>/on', methods=['POST'])
 def set_output_on(id):
     """
