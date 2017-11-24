@@ -111,8 +111,9 @@ def set_output_on(id):
     if id not in current_app.config['OUTPUTS']:
         return output_not_configured_error()
     try:
-        if "status" in request.values:
-            if request.values["status"] == 1:
+        data = request.get_json()
+        if "output" in data and "status" in data["output"]:
+            if data["output"]["status"]:
                 GPIO.output(current_app.config['OUTPUTS'][id], GPIO.HIGH)
             else:
                 GPIO.output(current_app.config['OUTPUTS'][id], GPIO.LOW)

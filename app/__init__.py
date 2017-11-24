@@ -10,6 +10,7 @@ def create_app(config):
     """
     app = Flask(__name__)
     CORS(app)
+    app.url_map.strict_slashes = False
     app.config.from_object(config)
     app.register_blueprint(api, url_prefix='/outputs')
     configure_outputs(app)
