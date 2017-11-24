@@ -24,7 +24,7 @@ def configure_outputs(app):
     :return:
     """
     GPIO.setmode(GPIO.BOARD)
-    for id, pin in app.config['OUTPUTS'].items():
-        GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
+    for _, v in app.config['OUTPUTS'].items():
+        GPIO.setup(v["pin"], GPIO.OUT, initial=GPIO.LOW)
 
 app = create_app('config')

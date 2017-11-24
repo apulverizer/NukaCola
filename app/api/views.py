@@ -81,7 +81,8 @@ def get_output(id):
     return jsonify({
         "output": {
             "id": id,
-            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+            "on": GPIO.input(current_app.config['OUTPUTS'][id]["pin"]),
+            "color": current_app.config['OUTPUTS'][id]["color"]
         }
     })
 
@@ -96,13 +97,14 @@ def get_outputs():
     for id in current_app.config['OUTPUTS']:
         outputs.append({
             "id": id,
-            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+            "on": GPIO.input(current_app.config['OUTPUTS'][id]["pin"]),
+            "color": current_app.config['OUTPUTS'][id]["color"]
         })
     return jsonify({"outputs": outputs})
 
 
 @api.route('/<int:id>', methods=['PUT'])
-def set_output_on(id):
+def update_output(id):
     """
     Sets the specified output to be on/off
     :param id: (int) the output to set
@@ -112,11 +114,12 @@ def set_output_on(id):
         return output_not_configured_error()
     try:
         data = request.get_json()
-        if "output" in data and "status" in data["output"]:
-            if data["output"]["status"]:
-                GPIO.output(current_app.config['OUTPUTS'][id], GPIO.HIGH)
+        if "output" in data and "on" in data["output"] and "color" in data["output"]:
+            if data["output"]["on"]:
+                GPIO.output(current_app.config['OUTPUTS'][id]["pin"], GPIO.HIGH)
             else:
-                GPIO.output(current_app.config['OUTPUTS'][id], GPIO.LOW)
+                GPIO.output(current_app.config['OUTPUTS'][id]["pin"], GPIO.LOW)
+            current_app.config['OUTPUTS'][id]["color"] = data["output"]["color"]
         else:
             return invalid_data_error()
     except Exception as e:
@@ -124,6 +127,7 @@ def set_output_on(id):
     return jsonify({
         "output": {
             "id": id,
-            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+            "on": GPIO.input(current_app.config['OUTPUTS'][id]["pin"]),
+            "color": current_app.config['OUTPUTS'][id]["color"]
         }
 })

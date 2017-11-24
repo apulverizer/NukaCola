@@ -19,7 +19,19 @@ CSRF_SESSION_KEY = "secret"
 SECRET_KEY = "secret"
 
 OUTPUTS = {
-    1: 11,
-    2: 13,
-    3: 15
+    1: {
+        "id": 1,
+        "pin": 11,
+        "color": "#000000"
+    },
+    2: {
+        "id": 2,
+        "pin": 13,
+        "color": "#000000"
+    },
+    3: {
+        "id": 3,
+        "pin": 15,
+        "color": "#000000"
+    }
 }
