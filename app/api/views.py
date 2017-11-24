@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify
 from flask import current_app
 import RPi.GPIO as GPIO
+from flask_cors import cross_origin
 
 api = Blueprint('api', __name__)
 
@@ -67,8 +68,10 @@ def get_output(id):
     if id not in current_app.config['OUTPUTS']:
         return output_not_configured_error()
     return jsonify({
-        "id": id,
-        "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        "output": {
+            "id": id,
+            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        }
     })
 
 
@@ -84,7 +87,7 @@ def get_outputs():
             "id": id,
             "status": GPIO.input(current_app.config['OUTPUTS'][id])
         })
-    return jsonify(outputs)
+    return jsonify({"outputs": outputs})
 
 
 @api.route('/<int:id>/on', methods=['POST'])
@@ -101,9 +104,11 @@ def set_output_on(id):
     except Exception as e:
         return gpio_error(e.str())
     return jsonify({
-        "id": id,
-        "status": GPIO.input(current_app.config['OUTPUTS'][id])
-    })
+        "output": {
+            "id": id,
+            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        }
+})
 
 
 @api.route('/<int:id>/off', methods=['POST'])
@@ -120,6 +125,8 @@ def set_output_off(id):
     except Exception as e:
         return gpio_error(e.str())
     return jsonify({
-        "id": id,
-        "status": GPIO.input(current_app.config['OUTPUTS'][id])
-    })
+        "output": {
+            "id": id,
+            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        }
+})
