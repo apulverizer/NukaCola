@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from flask import Blueprint, jsonify
-from flask import current_app
+from flask import current_app, request
 import RPi.GPIO as GPIO
 
 api = Blueprint('api', __name__)
@@ -26,7 +26,7 @@ def gpio_error(e):
     """
     return jsonify({
         "Error": {
-            "Message": e.message
+            "Message": str(e)
         }
     }), 500
 
@@ -67,12 +67,14 @@ def get_output(id):
     if id not in current_app.config['OUTPUTS']:
         return output_not_configured_error()
     return jsonify({
-        "id": id,
-        "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        "output": {
+            "id": id,
+            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        }
     })
 
 
-@api.route('/<int:id>/on', methods=['POST'])
+@api.route('/<int:id>', methods=['PUT'])
 def set_output_on(id):
     """
     Sets the specified output to be on
@@ -82,29 +84,16 @@ def set_output_on(id):
     if id not in current_app.config['OUTPUTS']:
         return output_not_configured_error()
     try:
-        GPIO.output(current_app.config['OUTPUTS'][id], GPIO.HIGH)
+        if "status" in request.values:
+            if request.values == 1:
+                GPIO.output(current_app.config['OUTPUTS'][id], GPIO.HIGH)
+            else:
+                GPIO.output(current_app.config['OUTPUTS'][id], GPIO.LOW)
     except Exception as e:
-        return gpio_error(e.str())
+        return gpio_error(e)
     return jsonify({
-        "id": id,
-        "status": GPIO.input(current_app.config['OUTPUTS'][id])
-    })
-
-
-@api.route('/<int:id>/off', methods=['POST'])
-def set_output_off(id):
-    """
-    Sets the specified output to be off
-    :param id: (int) the output to change
-    :return: json message showing the status of the output or error message
-    """
-    if id not in current_app.config['OUTPUTS']:
-        return output_not_configured_error()
-    try:
-        GPIO.output(current_app.config['OUTPUTS'][id], GPIO.LOW)
-    except Exception as e:
-        return gpio_error(e.str())
-    return jsonify({
-        "id": id,
-        "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        "output": {
+            "id": id,
+            "status": GPIO.input(current_app.config['OUTPUTS'][id])
+        }
     })
