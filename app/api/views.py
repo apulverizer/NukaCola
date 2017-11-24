@@ -1,8 +1,7 @@
 # -*- coding: UTF-8 -*-
 from flask import Blueprint, jsonify
-from flask import current_app
+from flask import current_app, request
 import RPi.GPIO as GPIO
-from flask_cors import cross_origin
 
 api = Blueprint('api', __name__)
 
@@ -19,6 +18,18 @@ def output_not_configured_error():
     }), 400
 
 
+def invalid_data_error():
+    """
+    Error handler when an invalid page was requested
+    :return: json error message with status code 404
+    """
+    return jsonify({
+        "Error": {
+            "Message": "Invalid data",
+        }
+    }), 400
+
+
 def gpio_error(e):
     """
     Error handler when something went wrong setting the GPIO
@@ -27,7 +38,7 @@ def gpio_error(e):
     """
     return jsonify({
         "Error": {
-            "Message": e.message
+            "Message": str(e)
         }
     }), 500
 
@@ -90,40 +101,25 @@ def get_outputs():
     return jsonify({"outputs": outputs})
 
 
-@api.route('/<int:id>/on', methods=['POST'])
+@api.route('/<int:id>', methods=['PUT'])
 def set_output_on(id):
     """
-    Sets the specified output to be on
+    Sets the specified output to be on/off
     :param id: (int) the output to set
     :return: json message showing the status of the output or error message
     """
     if id not in current_app.config['OUTPUTS']:
         return output_not_configured_error()
     try:
-        GPIO.output(current_app.config['OUTPUTS'][id], GPIO.HIGH)
+        if "status" in request.values:
+            if request.values["status"] == 1:
+                GPIO.output(current_app.config['OUTPUTS'][id], GPIO.HIGH)
+            else:
+                GPIO.output(current_app.config['OUTPUTS'][id], GPIO.LOW)
+        else:
+            return invalid_data_error()
     except Exception as e:
-        return gpio_error(e.str())
-    return jsonify({
-        "output": {
-            "id": id,
-            "status": GPIO.input(current_app.config['OUTPUTS'][id])
-        }
-})
-
-
-@api.route('/<int:id>/off', methods=['POST'])
-def set_output_off(id):
-    """
-    Sets the specified output to be off
-    :param id: (int) the output to change
-    :return: json message showing the status of the output or error message
-    """
-    if id not in current_app.config['OUTPUTS']:
-        return output_not_configured_error()
-    try:
-        GPIO.output(current_app.config['OUTPUTS'][id], GPIO.LOW)
-    except Exception as e:
-        return gpio_error(e.str())
+        return gpio_error(e)
     return jsonify({
         "output": {
             "id": id,
