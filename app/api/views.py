@@ -1,7 +1,8 @@
 # -*- coding: UTF-8 -*-
+import struct
 from flask import Blueprint, jsonify
 from flask import current_app, request
-import RPi.GPIO as GPIO
+from neopixel import *
 
 api = Blueprint('api', __name__)
 
@@ -81,8 +82,7 @@ def get_output(id):
     return jsonify({
         "output": {
             "id": id,
-            "on": GPIO.input(current_app.config['OUTPUTS'][id]["pin"]),
-            "color": current_app.config['OUTPUTS'][id]["color"]
+            "color": current_app.config['LEDS'].getPixelColor(id)
         }
     })
 
@@ -94,11 +94,10 @@ def get_outputs():
     :return: json string of the configured outputs
     """
     outputs = []
-    for id in current_app.config['OUTPUTS']:
+    for i in range(current_app.config['LEDS'].numPixels()):
         outputs.append({
             "id": id,
-            "on": GPIO.input(current_app.config['OUTPUTS'][id]["pin"]),
-            "color": current_app.config['OUTPUTS'][id]["color"]
+            "color": current_app.config['LEDS'].getPixelColor(i)
         })
     return jsonify({"outputs": outputs})
 
@@ -110,16 +109,13 @@ def update_output(id):
     :param id: (int) the output to set
     :return: json message showing the status of the output or error message
     """
-    if id not in current_app.config['OUTPUTS']:
+    if id > current_app.config["LEDS"].numPixels()-1 or id < 0:
         return output_not_configured_error()
     try:
         data = request.get_json()
-        if "output" in data and "on" in data["output"] and "color" in data["output"]:
-            if data["output"]["on"]:
-                GPIO.output(current_app.config['OUTPUTS'][id]["pin"], GPIO.HIGH)
-            else:
-                GPIO.output(current_app.config['OUTPUTS'][id]["pin"], GPIO.LOW)
-            current_app.config['OUTPUTS'][id]["color"] = data["output"]["color"]
+        if "output" in data and "color" in data["output"]:
+            color_tuple = struct.unpack('BBB', data["output"]["color"].decode('hex'))
+            current_app.config['LEDS'].setPixelColor(id, Color(color_tuple[0], color_tuple[1], color_tuple[2]))
         else:
             return invalid_data_error()
     except Exception as e:
@@ -127,7 +123,6 @@ def update_output(id):
     return jsonify({
         "output": {
             "id": id,
-            "on": GPIO.input(current_app.config['OUTPUTS'][id]["pin"]),
-            "color": current_app.config['OUTPUTS'][id]["color"]
+            "color": current_app.config['LEDS'].getPixelColor(i)
         }
 })

@@ -2,7 +2,7 @@
 from flask import Flask
 from app.api.views import api
 from flask_cors import CORS
-import RPi.GPIO as GPIO
+from neopixel import *
 
 def create_app(config):
     """
@@ -19,12 +19,25 @@ def create_app(config):
 
 def configure_outputs(app):
     """
-    Configures the outputs usign RPi GPIO library
+    Configures the leds via neopixel library
     :param app: the application instance
     :return:
     """
-    GPIO.setmode(GPIO.BOARD)
-    for _, v in app.config['OUTPUTS'].items():
-        GPIO.setup(v["pin"], GPIO.OUT, initial=GPIO.LOW)
+    # Create NeoPixel object with appropriate configuration.
+    app.config['LEDS'] = Adafruit_NeoPixel(app.config['LED_COUNT'],
+                              app.config['LED_PIN'],
+                              app.config['LED_FREQ_HZ'],
+                              app.config['LED_DMA'],
+                              app.config['LED_INVERT'],
+                              app.config['LED_CHANNEL'],
+                              app.config['LED_BRIGHTNESS'],
+                              app.config['LED_STRIP']
+                              )
+    # Intialize the library (must be called once before other functions).
+    app.config['LEDS'].begin()
+    # turn off all pixels
+    for i in range(app.config['LEDS'].numPixels()):
+        app.config['LEDS'].setPixelColor(i, Color(0, 0, 0))
+    app.config['LEDS'].show()
 
 app = create_app('config')
