@@ -108,7 +108,7 @@ def get_outputs():
     outputs = []
     for i in range(current_app.config['LEDS'].numPixels()):
         outputs.append({
-            "id": id,
+            "id": i,
             "color": raw_color_to_hex_string(current_app.config['LEDS'].getPixelColor(i))
         })
     return jsonify({"outputs": outputs})
