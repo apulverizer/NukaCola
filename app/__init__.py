@@ -24,15 +24,16 @@ def configure_outputs(app):
     :return:
     """
     # Create NeoPixel object with appropriate configuration.
-    app.config['LEDS'] = Adafruit_NeoPixel(app.config['LED_COUNT'],
-                              app.config['LED_PIN'],
-                              app.config['LED_FREQ_HZ'],
-                              app.config['LED_DMA'],
-                              app.config['LED_INVERT'],
-                              app.config['LED_CHANNEL'],
-                              app.config['LED_BRIGHTNESS'],
-                              app.config['LED_STRIP']
-                              )
+    app.config['LEDS'] = Adafruit_NeoPixel(
+      app.config['LED_COUNT'],
+      app.config['LED_PIN'],
+      app.config['LED_FREQ_HZ'],
+      app.config['LED_DMA'],
+      app.config['LED_INVERT'],
+      app.config['LED_BRIGHTNESS'],
+      app.config['LED_CHANNEL'],
+      app.config['LED_STRIP']
+    )
     # Intialize the library (must be called once before other functions).
     app.config['LEDS'].begin()
     # turn off all pixels

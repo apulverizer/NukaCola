@@ -57,7 +57,7 @@ def page_not_found():
     }), 404
 
 
-@api.errorhandler(500)
+@api.errorhandler(400)
 def server_error():
     """
     Error handler for any general internal error
