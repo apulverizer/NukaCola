@@ -15,6 +15,7 @@ def raw_color_to_hex_string(color):
 
 
 def rgb_hex_color_to_color(rgb_hex):
+    rgb_hex = rgb_hex.replace("#","")
     color_tuple = struct.unpack('BBB', rgb_hex.decode('hex'))
     return Color(color_tuple[0], color_tuple[1], color_tuple[2])
 
@@ -127,6 +128,7 @@ def update_output(id):
         data = request.get_json()
         if "output" in data and "color" in data["output"]:
             current_app.config['LEDS'].setPixelColor(id, rgb_hex_color_to_color(data["output"]["color"]))
+            current_app.config['LEDS'].show()
         else:
             return invalid_data_error()
     except Exception as e:
@@ -134,6 +136,6 @@ def update_output(id):
     return jsonify({
         "output": {
             "id": id,
-            "color": current_app.config['LEDS'].getPixelColor(id)
+            "color": raw_color_to_hex_string(current_app.config['LEDS'].getPixelColor(id))
         }
 })
