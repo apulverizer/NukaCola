@@ -89,7 +89,7 @@ def get_output(id):
     :param id: (int) the output to get info about
     :return: json string of info or error
     """
-    if id not in current_app.config['OUTPUTS']:
+    if id > current_app.config["LEDS"].numPixels() - 1 or id < 0:
         return output_not_configured_error()
     return jsonify({
         "output": {
