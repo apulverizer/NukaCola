@@ -7,6 +7,18 @@ from neopixel import *
 api = Blueprint('api', __name__)
 
 
+def raw_color_to_hex_string(color):
+    r = color << 16 & 255
+    g = color << 8 & 255
+    b = color & 255
+    return '#%02x%02x%02x' % (r, g, b)
+
+
+def rgb_hex_color_to_color(rgb_hex):
+    color_tuple = struct.unpack('BBB', rgb_hex.decode('hex'))
+    return Color(color_tuple[0], color_tuple[1], color_tuple[2])
+
+
 def output_not_configured_error():
     """
     Error handler when the specified pin has not been configured for use with app
@@ -97,7 +109,7 @@ def get_outputs():
     for i in range(current_app.config['LEDS'].numPixels()):
         outputs.append({
             "id": id,
-            "color": current_app.config['LEDS'].getPixelColor(i)
+            "color": raw_color_to_hex_string(current_app.config['LEDS'].getPixelColor(i))
         })
     return jsonify({"outputs": outputs})
 
@@ -114,8 +126,7 @@ def update_output(id):
     try:
         data = request.get_json()
         if "output" in data and "color" in data["output"]:
-            color_tuple = struct.unpack('BBB', data["output"]["color"].decode('hex'))
-            current_app.config['LEDS'].setPixelColor(id, Color(color_tuple[0], color_tuple[1], color_tuple[2]))
+            current_app.config['LEDS'].setPixelColor(id, rgb_hex_color_to_color(data["output"]["color"]))
         else:
             return invalid_data_error()
     except Exception as e:
