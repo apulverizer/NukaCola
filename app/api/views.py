@@ -8,8 +8,8 @@ api = Blueprint('api', __name__)
 
 
 def raw_color_to_hex_string(color):
-    r = color << 16 & 255
-    g = color << 8 & 255
+    r = color >> 16 & 255
+    g = color >> 8 & 255
     b = color & 255
     return '#%02x%02x%02x' % (r, g, b)
 
