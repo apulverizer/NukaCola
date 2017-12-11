@@ -94,7 +94,7 @@ def get_output(id):
     return jsonify({
         "output": {
             "id": id,
-            "color": current_app.config['LEDS'].getPixelColor(id)
+            "color": raw_color_to_hex_string(current_app.config['LEDS'].getPixelColor(id))
         }
     })
 
@@ -134,6 +134,6 @@ def update_output(id):
     return jsonify({
         "output": {
             "id": id,
-            "color": current_app.config['LEDS'].getPixelColor(i)
+            "color": current_app.config['LEDS'].getPixelColor(id)
         }
 })
