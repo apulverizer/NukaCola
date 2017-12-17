@@ -20,14 +20,14 @@ def rgb_hex_color_to_color(rgb_hex):
     return Color(color_tuple[0], color_tuple[1], color_tuple[2])
 
 
-def output_not_configured_error():
+def led_not_configured_error():
     """
     Error handler when the specified pin has not been configured for use with app
     :return: json error message with status code of 400
     """
     return jsonify({
         "Error": {
-            "Message": "The output is not configured to be set by the app"
+            "Message": "The led is not configured to be set"
         }
     }), 400
 
@@ -44,9 +44,9 @@ def invalid_data_error():
     }), 400
 
 
-def gpio_error(e):
+def led_error(e):
     """
-    Error handler when something went wrong setting the GPIO
+    Error handler when something went wrong setting the led
     :param e: The exception
     :return: json error message with status code 500
     """
@@ -84,16 +84,16 @@ def server_error():
 
 
 @api.route('/<int:id>/', methods=['GET'])
-def get_output(id):
+def get_led(id):
     """
-    Returns info about an output
-    :param id: (int) the output to get info about
+    Returns info about an led
+    :param id: (int) the led  to get info about
     :return: json string of info or error
     """
     if id > current_app.config["LEDS"].numPixels() - 1 or id < 0:
-        return output_not_configured_error()
+        return led_not_configured_error()
     return jsonify({
-        "output": {
+        "led": {
             "id": id,
             "color": raw_color_to_hex_string(current_app.config['LEDS'].getPixelColor(id))
         }
@@ -101,40 +101,40 @@ def get_output(id):
 
 
 @api.route('/', methods=['GET'])
-def get_outputs():
+def get_leds():
     """
-    Returns info about outputs
+    Returns info about leds
     :return: json string of the configured outputs
     """
-    outputs = []
+    leds = []
     for i in range(current_app.config['LEDS'].numPixels()):
-        outputs.append({
+        leds.append({
             "id": i,
             "color": raw_color_to_hex_string(current_app.config['LEDS'].getPixelColor(i))
         })
-    return jsonify({"outputs": outputs})
+    return jsonify({"leds": leds})
 
 
 @api.route('/<int:id>', methods=['PUT'])
-def update_output(id):
+def update_led(id):
     """
-    Sets the specified output to be on/off
-    :param id: (int) the output to set
-    :return: json message showing the status of the output or error message
+    Sets the specified led color
+    :param id: (int) the led to set
+    :return: json message showing the status of the led or error message
     """
     if id > current_app.config["LEDS"].numPixels()-1 or id < 0:
-        return output_not_configured_error()
+        return led_not_configured_error()
     try:
         data = request.get_json()
-        if "output" in data and "color" in data["output"]:
-            current_app.config['LEDS'].setPixelColor(id, rgb_hex_color_to_color(data["output"]["color"]))
+        if "led" in data and "color" in data["led"]:
+            current_app.config['LEDS'].setPixelColor(id, rgb_hex_color_to_color(data["led"]["color"]))
             current_app.config['LEDS'].show()
         else:
             return invalid_data_error()
     except Exception as e:
-        return gpio_error(e)
+        return led_error(e)
     return jsonify({
-        "output": {
+        "led": {
             "id": id,
             "color": raw_color_to_hex_string(current_app.config['LEDS'].getPixelColor(id))
         }

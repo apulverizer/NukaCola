@@ -12,7 +12,7 @@ def create_app(config):
     CORS(app)
     app.url_map.strict_slashes = False
     app.config.from_object(config)
-    app.register_blueprint(api, url_prefix='/outputs')
+    app.register_blueprint(api, url_prefix='/leds')
     configure_outputs(app)
     return app
 
